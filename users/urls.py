@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import UserUpdateAPIView, UserRetrieveAPIView
+
 from .apps import UsersConfig
+from .views import UserUpdateAPIView, UserRetrieveAPIView
 
 app_name = UsersConfig.name
 

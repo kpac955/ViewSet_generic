@@ -1,8 +1,10 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+
 class UserManager(BaseUserManager):
     """Менеджер для создания пользователей без поля username"""
+
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('Email должен быть указан')
@@ -17,6 +19,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
 
         return self.create_user(email, password, **extra_fields)
+
 
 class User(AbstractUser):
     username = None

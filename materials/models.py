@@ -1,9 +1,11 @@
 from django.db import models
 
+
 class Course(models.Model):
     title = models.CharField(max_length=150, verbose_name='Название')
     preview = models.ImageField(upload_to='courses/', verbose_name='Превью', blank=True, null=True)
     description = models.TextField(verbose_name='Описание')
+
 
 class Lesson(models.Model):
     title = models.CharField(max_length=150, verbose_name='Название')
