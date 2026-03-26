@@ -11,6 +11,13 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
 
+    def get_queryset(self):
+        """Фильтрация курсов: модератор видит всё, пользователь — только своё."""
+        queryset = super().get_queryset()
+        if not self.request.user.groups.filter(name='moderators').exists():
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
     def get_permissions(self):
         """Разграничение прав доступа для разных действий."""
         if self.action == 'create':
@@ -45,6 +52,13 @@ class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Фильтрация уроков: модератор видит всё, пользователь — только своё."""
+        queryset = super().get_queryset()
+        if not self.request.user.groups.filter(name='moderators').exists():
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
