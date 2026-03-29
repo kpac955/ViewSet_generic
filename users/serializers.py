@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from .models import User, Payment
+
+from .models import Payment, User
 
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = '__all__'
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,13 +14,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'phone', 'city', 'avatar', 'payments']
+        fields = ["id", "email", "phone", "city", "avatar", "payments"]
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('email', 'password', 'phone', 'city')
+        fields = ("email", "password", "phone", "city")
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
