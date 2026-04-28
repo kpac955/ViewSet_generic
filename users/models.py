@@ -82,6 +82,9 @@ class Payment(models.Model):
         verbose_name="Способ оплаты",
     )
 
+    session_id = models.CharField(max_length=255, verbose_name='ID сессии', null=True, blank=True)
+    link = models.URLField(max_length=400, verbose_name='Ссылка на оплату', null=True, blank=True)
+
     def __str__(self):
         return f"{self.user} - {self.amount} ({self.payment_date})"
 

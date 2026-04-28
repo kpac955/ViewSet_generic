@@ -3,13 +3,14 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
-from .apps import UsersConfig
-from .views import (PaymentListAPIView, UserCreateAPIView, UserRetrieveAPIView,
-                    UserUpdateAPIView)
+from users.apps import UsersConfig
+from users.views import (PaymentListAPIView, UserCreateAPIView, UserRetrieveAPIView,
+                         UserUpdateAPIView, PaymentCreateAPIView)
 
 app_name = UsersConfig.name
 
 urlpatterns = [
+    # Регистрация и авторизация
     path("register/", UserCreateAPIView.as_view(), name="register"),
     path(
         "login/",
@@ -21,7 +22,12 @@ urlpatterns = [
         TokenRefreshView.as_view(permission_classes=[AllowAny]),
         name="token_refresh",
     ),
+
+    # Пользователи
     path("<int:pk>/update/", UserUpdateAPIView.as_view(), name="user-update"),
     path("<int:pk>/", UserRetrieveAPIView.as_view(), name="user-get"),
+
+    # Платежи
     path("payments/", PaymentListAPIView.as_view(), name="payment-list"),
+    path("payment/create/", PaymentCreateAPIView.as_view(), name="payment-create"),
 ]
