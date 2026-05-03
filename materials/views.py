@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from materials.permissions import IsModer, IsOwner
 from materials.serializers import CourseSerializer, LessonSerializer
 
 
+@extend_schema(tags=["Courses"])
 class CourseViewSet(viewsets.ModelViewSet):
     """ViewSet для работы с курсами."""
 
@@ -38,11 +40,29 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
+@extend_schema(tags=["Subscriptions"])
 class SubscriptionAPIView(APIView):
     """Управление подпиской на курсы."""
 
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Изменение подписки на курс",
+        description="Если подписка существует — удаляет её, если нет — создает. Требуется передать ID курса.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "course": {
+                        "type": "integer",
+                        "description": "ID курса для подписки/отписки",
+                    }
+                },
+                "required": ["course"],
+            }
+        },
+        responses={200: {"description": "Успешное изменение статуса подписки"}},
+    )
     def post(self, *args, **kwargs):
         user = self.request.user
         course_id = self.request.data.get("course")
@@ -60,6 +80,7 @@ class SubscriptionAPIView(APIView):
         return Response({"message": message})
 
 
+@extend_schema(tags=["Lessons"])
 class LessonCreateAPIView(generics.CreateAPIView):
     """Создание урока."""
 
@@ -70,6 +91,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
         serializer.save(owner=self.request.user)
 
 
+@extend_schema(tags=["Lessons"])
 class LessonListAPIView(generics.ListAPIView):
     """Вывод списка уроков с пагинацией."""
 
@@ -85,18 +107,27 @@ class LessonListAPIView(generics.ListAPIView):
         return queryset
 
 
+@extend_schema(tags=["Lessons"])
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
+    """Просмотр одного урока."""
+
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
 
 
+@extend_schema(tags=["Lessons"])
 class LessonUpdateAPIView(generics.UpdateAPIView):
+    """Обновление урока."""
+
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
 
 
+@extend_schema(tags=["Lessons"])
 class LessonDestroyAPIView(generics.DestroyAPIView):
+    """Удаление урока."""
+
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsOwner]

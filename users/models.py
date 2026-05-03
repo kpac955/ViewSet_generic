@@ -51,6 +51,13 @@ class Payment(models.Model):
         ("transfer", "перевод на счет"),
     ]
 
+    STATUS_CHOICES = [
+        ("created", "Создан"),
+        ("paid", "Оплачен"),
+        ("unpaid", "Не оплачен"),
+        ("canceled", "Отменен"),
+    ]
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -82,11 +89,27 @@ class Payment(models.Model):
         verbose_name="Способ оплаты",
     )
 
-    session_id = models.CharField(max_length=255, verbose_name='ID сессии', null=True, blank=True)
-    link = models.URLField(max_length=400, verbose_name='Ссылка на оплату', null=True, blank=True)
+    session_id = models.CharField(
+        max_length=255, verbose_name="ID сессии", null=True, blank=True
+    )
+    link = models.URLField(
+        max_length=400, verbose_name="Ссылка на оплату", null=True, blank=True
+    )
+    product_id = models.CharField(
+        max_length=255, verbose_name="ID продукта Stripe", blank=True, null=True
+    )
+    price_id = models.CharField(
+        max_length=255, verbose_name="ID цены Stripe", blank=True, null=True
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="created",
+        verbose_name="Статус платежа",
+    )
 
     def __str__(self):
-        return f"{self.user} - {self.amount} ({self.payment_date})"
+        return f"{self.user} - {self.amount} ({self.status})"
 
     class Meta:
         verbose_name = "Платеж"
