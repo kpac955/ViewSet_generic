@@ -9,3 +9,9 @@ API для системы управления обучением (курсы и
 3. Применить миграции: `python manage.py migrate`.
 4. Создать суперпользователя: `python manage.py createsuperuser`.
 5. Запустить сервер: `python manage.py runserver`.
+
+
+## Запуск Celery (Windows)
+1. Запустите Redis (Memurai/redis-server.exe)
+2. Воркер: `celery -A config worker -l info --pool=solo`
+3. Планировщик: `celery -A config beat -l info`

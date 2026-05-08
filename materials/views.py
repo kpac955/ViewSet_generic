@@ -9,6 +9,7 @@ from materials.models import Course, Lesson, Subscription
 from materials.paginators import CustomPaginator
 from materials.permissions import IsModer, IsOwner
 from materials.serializers import CourseSerializer, LessonSerializer
+from materials.tasks import send_course_update_email
 
 
 @extend_schema(tags=["Courses"])
@@ -38,6 +39,12 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        """Переопределяем сохранение, чтобы отправить уведомление."""
+        instance = serializer.save()
+
+        send_course_update_email.delay(instance.id)
 
 
 @extend_schema(tags=["Subscriptions"])
@@ -123,6 +130,11 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        if instance.course:
+            send_course_update_email.delay(instance.course.id)
 
 
 @extend_schema(tags=["Lessons"])

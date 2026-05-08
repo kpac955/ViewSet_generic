@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     "django_filters",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -142,3 +144,12 @@ SPECTACULAR_SETTINGS = {
 }
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+
+CELERY_BEAT_SCHEDULE = {
+    "block_users_monthly": {
+        "task": "users.tasks.block_inactive_users",
+        "schedule": crontab(day_of_month="1", hour=0),
+    },
+}
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
