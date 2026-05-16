@@ -26,7 +26,7 @@ services:
   # Django
   app:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn --bind 0.0.0.0:8000 config.wsgi
     volumes:
       - .:/app
     ports:
@@ -42,7 +42,7 @@ services:
   # Celery воркер
   worker:
     build: .
-    command: celery -A config worker -l info --pool=solo
+    command: celery -A config worker -l info
     env_file:
       - .env
     depends_on:
