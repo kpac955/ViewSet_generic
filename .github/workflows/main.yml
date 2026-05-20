@@ -94,3 +94,7 @@ jobs:
             docker compose up -d --build
             docker compose exec -T app python manage.py migrate
             docker image prune -f
+            
+            pwd
+            docker compose ps
+            docker compose logs nginx
