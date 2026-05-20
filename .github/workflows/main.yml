@@ -97,4 +97,8 @@ jobs:
             
             docker compose down -v
             docker compose up -d --build
-            docker compose ps
+            
+            sleep 5
+
+            echo "=== СМОТРИМ ЛОГИ ДЖАНГО ==="
+            docker compose logs app
