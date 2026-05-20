@@ -95,14 +95,22 @@ jobs:
             sudo systemctl stop nginx || echo "System nginx already stopped"
             sudo systemctl disable nginx || echo "System nginx already disabled"
             
+            # 1. Останавливаем проект и чистим тома
             docker compose down -v
+            
+            # 2. СКАЧИВАЕМ СВЕЖИЙ ОБРАЗ С DOCKER HUB
+            docker compose pull app
+            
+            # 3. Поднимаем контейнеры
             docker compose up -d --build
             
-            # Даем контейнерам нормально проснуться
             sleep 7
             
-            echo "=== ПРОВЕРЯЕМ ЧТО РЕАЛЬНО ВНУТРИ КОНТЕЙНЕРА ==="
+            echo "=== ПРОВЕРЯЕМ СВЕЖИЙ КОНТЕЙНЕР ==="
             docker exec app-app-1 cat config/settings.py | grep -E "STATIC_URL|STATIC_ROOT"
             
-            echo "=== ЗАПУСКАЕМ СБОРКУ СТАТИКИ НАПРЯМУЮ ==="
+            echo "=== ЗАПУСКАЕМ СБОРКУ СТАТИКИ ==="
             docker exec app-app-1 python manage.py collectstatic --no-input
+            docker exec app-app-1 python manage.py migrate --no-input
+            
+            docker compose ps
