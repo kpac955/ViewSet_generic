@@ -98,10 +98,6 @@ jobs:
             docker compose down -v
             docker compose up -d --build
             
-            sleep 5
-            
-            echo "=== СМОТРИМ ЛОГИ NGINX ==="
-            docker compose logs nginx
+            docker compose exec -T app python manage.py collectstatic --no-input
 
-            echo "=== СМОТРИМ ЛОГИ ДЖАНГО ==="
-            docker compose logs app
+            docker compose ps
