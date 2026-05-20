@@ -60,16 +60,20 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Login to Docker
         uses: docker/login-action@v3
         with:
           username: kottt95
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Push to Docker Hub
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
           tags: kottt95/lms_app:latest
 
@@ -80,6 +84,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -95,22 +100,21 @@ jobs:
             sudo systemctl stop nginx || echo "System nginx already stopped"
             sudo systemctl disable nginx || echo "System nginx already disabled"
             
-            # 1. Останавливаем проект и чистим тома
+            # Останавливаем проект и очищаем старые анонимные тома
             docker compose down -v
             
-            # 2. СКАЧИВАЕМ СВЕЖИЙ ОБРАЗ С DOCKER HUB
+            # Принудительно затягиваем обновленный образ, игнорируя локальный кэш сервера
             docker compose pull app
             
-            # 3. Поднимаем контейнеры
+            # Поднимаем контейнеры
             docker compose up -d --build
             
+            # Короткая пауза, чтобы контейнер app успел запуститься перед выполнением команд
             sleep 7
             
-            echo "=== ПРОВЕРЯЕМ СВЕЖИЙ КОНТЕЙНЕР ==="
-            docker exec app-app-1 cat config/settings.py | grep -E "STATIC_URL|STATIC_ROOT"
-            
-            echo "=== ЗАПУСКАЕМ СБОРКУ СТАТИКИ ==="
-            docker exec app-app-1 python manage.py collectstatic --no-input
+            # Накатываем миграции и собираем статику в общий том для Nginx
             docker exec app-app-1 python manage.py migrate --no-input
+            docker exec app-app-1 python manage.py collectstatic --no-input
             
+            # Выводим финальный статус запущенных контейнеров
             docker compose ps
