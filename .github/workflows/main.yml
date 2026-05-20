@@ -90,9 +90,7 @@ jobs:
             cd /home/root/app
             git pull origin home_work  
             docker compose pull
-            docker compose down
-            
+            docker compose down -v
             docker compose up -d --build
-            
             docker compose exec -T app python manage.py migrate
             docker image prune -f
