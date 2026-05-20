@@ -98,13 +98,11 @@ jobs:
             docker compose down -v
             docker compose up -d --build
             
+            # Даем контейнерам нормально проснуться
             sleep 7
+            
+            echo "=== ПРОВЕРЯЕМ ЧТО РЕАЛЬНО ВНУТРИ КОНТЕЙНЕРА ==="
+            docker exec app-app-1 cat config/settings.py | grep -E "STATIC_URL|STATIC_ROOT"
             
             echo "=== ЗАПУСКАЕМ СБОРКУ СТАТИКИ НАПРЯМУЮ ==="
             docker exec app-app-1 python manage.py collectstatic --no-input
-            
-            echo "=== ПРОГНЯЕМ МИГРАЦИИ ==="
-            docker exec app-app-1 python manage.py migrate --no-input
-            
-            echo "=== ПРОВЕРЯЕМ СОДЕРЖИМОЕ ПАПКИ В NGINX ==="
-            docker exec app-nginx-1 ls -la /app/staticfiles
