@@ -92,12 +92,10 @@ jobs:
             git reset --hard origin/home_work
             git pull origin home_work  
             
+            sudo systemctl stop nginx || echo "System nginx already stopped"
+            sudo systemctl disable nginx || echo "System nginx already disabled"
+            
             docker compose down -v
-            
-            docker rm -f $(docker ps -a -q) || echo "No containers to clean"
-            
-            docker network prune -f
-            
             docker compose up -d --build
             
             docker compose ps
