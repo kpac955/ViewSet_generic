@@ -95,19 +95,16 @@ jobs:
             sudo systemctl stop nginx || echo "System nginx already stopped"
             sudo systemctl disable nginx || echo "System nginx already disabled"
             
-            # Жестко удаляем контейнеры И старые объемы статики, чтобы пересоздать их с нуля
             docker compose down -v
             docker compose up -d --build
             
             sleep 7
             
-            # Запускаем сборку статики
-            docker compose exec -T app python manage.py collectstatic --no-input
+            echo "=== ЗАПУСКАЕМ СБОРКУ СТАТИКИ НАПРЯМУЮ ==="
+            docker exec app-app-1 python manage.py collectstatic --no-input
             
-            echo "=== ПРОВЕРЯЕМ, ГДЕ ЛЕЖИТ СТАТИКА В DJANGO ==="
-            docker compose exec -T app ls -la /app/staticfiles || echo "No staticfiles in app"
+            echo "=== ПРОГНЯЕМ МИГРАЦИИ ==="
+            docker exec app-app-1 python manage.py migrate --no-input
             
-            echo "=== ПРОВЕРЯЕМ, ВИДИТ ЛИ СТАТИКУ NGINX ==="
-            docker compose exec -T nginx ls -la /app/staticfiles || echo "No staticfiles in nginx"
-            
-            docker compose ps
+            echo "=== ПРОВЕРЯЕМ СОДЕРЖИМОЕ ПАПКИ В NGINX ==="
+            docker exec app-nginx-1 ls -la /app/staticfiles
