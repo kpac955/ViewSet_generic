@@ -93,7 +93,11 @@ jobs:
             git pull origin home_work  
             
             docker compose down -v
+            
+            docker rm -f $(docker ps -a -q) || echo "No containers to clean"
+            
+            docker network prune -f
+            
             docker compose up -d --build
             
-            docker compose exec -T app python manage.py migrate
-            docker image prune -f
+git add .            docker compose ps
