@@ -1,9 +1,27 @@
-venv/
-.venv/
+# Django / Python
+*.pyc
 __pycache__/
-*.sqlite3
+celerybeat-schedule
+db.sqlite3
 media/
+staticfiles/
+static/
+
+# Environments (Виртуальные окружения)
 .env
+.env.[a-zA-center]*
+venv/
+env/
+ENV/
+
+# IDEs
 .idea/
-.coverage
-celerybeat-schedule*
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Docker
+.dockerconfig
