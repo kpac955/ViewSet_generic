@@ -99,6 +99,9 @@ jobs:
             docker compose up -d --build
             
             sleep 5
+            
+            echo "=== СМОТРИМ ЛОГИ NGINX ==="
+            docker compose logs nginx
 
             echo "=== СМОТРИМ ЛОГИ ДЖАНГО ==="
             docker compose logs app
