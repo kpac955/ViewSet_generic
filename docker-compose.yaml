@@ -1,0 +1,76 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    expose:
+      - "6379"
+
+  app:
+    image: kottt95/lms_app:latest
+    restart: unless-stopped
+    command: python -m gunicorn --bind 0.0.0.0:8000 config.wsgi
+    env_file:
+      - .env
+    expose:
+      - "8000"
+    volumes:
+      - django_static:/app/staticfiles/
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  worker:
+    image: kottt95/lms_app:latest
+    restart: unless-stopped
+    command: python -m celery -A config worker -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - app
+
+  beat:
+    image: kottt95/lms_app:latest
+    restart: unless-stopped
+    command: python -m celery -A config beat -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - app
+
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /dev/null:/etc/nginx/conf.d/default.conf:ro
+      - django_static:/app/staticfiles/:ro
+    depends_on:
+      - app
+    links:
+      - app:app
+
+volumes:
+  pg_data:
+  django_static:

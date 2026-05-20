@@ -5,10 +5,13 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.models import Payment, User
-from users.serializers import (PaymentSerializer, UserCreateSerializer,
-                               UserSerializer)
-from users.services import (create_stripe_price, create_stripe_product,
-                            create_stripe_session, get_stripe_session_status)
+from users.serializers import PaymentSerializer, UserCreateSerializer, UserSerializer
+from users.services import (
+    create_stripe_price,
+    create_stripe_product,
+    create_stripe_session,
+    get_stripe_session_status,
+)
 
 
 class UserUpdateAPIView(generics.UpdateAPIView):
