@@ -98,4 +98,8 @@ jobs:
             docker compose down -v
             docker compose up -d --build
             
-            docker compose ps
+            echo "=== ЧТО СЕЙЧАС ВНУТРИ КОНТЕЙНЕРА NGINX ==="
+            docker compose exec -T nginx cat /etc/nginx/nginx.conf
+            
+            echo "=== ПРОВЕРЯЕМ ОТВЕТ DJANGO НАПРЯМУЮ ==="
+            docker compose exec -T app curl -I http://localhost:8000 || echo "Django doesn't respond"
