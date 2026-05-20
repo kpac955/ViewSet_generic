@@ -65,13 +65,13 @@ jobs:
       - name: Login to Docker
         uses: docker/login-action@v3
         with:
-          username: kottt95  # ИСПРАВЛЕНО: Твой прямой логин вместо секрета
+          username: kottt95
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Push to Docker Hub
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: kottt95/lms_app:latest  # ИСПРАВЛЕНО: Твой прямой тег без макросов
+          tags: kottt95/lms_app:latest
 
   # 3. Деплой на сервер FirstVDS
   deploy:
@@ -98,6 +98,10 @@ jobs:
             docker compose down -v
             docker compose up -d --build
             
+            sleep 7
+            
             docker compose exec -T app python manage.py collectstatic --no-input
+            
+            docker compose exec -T app python manage.py migrate --no-input
 
             docker compose ps
